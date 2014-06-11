@@ -9,10 +9,12 @@
 }
 
 #threesixty li {
+  background-repeat: 'no-repeat';
+  background-size: 'auto';
+  height: auto;
   position: absolute;
   top: 0;
   width: 100%;
-  height: auto;
 }
 
 .current-image {
