@@ -1,7 +1,8 @@
-# 360 Image Slider
+This os a fork from [360 Image slider](https://github.com/heartcode/360-Image-Slider).
 
-The 360 Image Slider was a experimental project, which I worked on when I was writing a javascript tutorial for .net Magazine (issue #224).
-Luckily the tutorial was pretty well received, so I decided to make it open source, and create a git repository to allow others to collaborate and help to make it awesome :)
+I removed everything I consider unecessary, like the spinner, and turned it into a jquery plugin.
+
+I also changed it to use background image sprint instead of multiple images.
 
 ## Credits
 
