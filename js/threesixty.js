@@ -36,15 +36,7 @@ $(document).ready(function () {
   // Caching DOM element references
   $document = $(document),
   $container = $('#threesixty'),
-  $images = $('#threesixty_images'),
-
-  // Initial spin demo vars
-  demoMode = false,
-  fakePointer = {
-    x: 0,
-    speed: 4
-  },
-  fakePointerTimer = 0;
+  $images = $('#threesixty_images');
 
   /**
   * Creates a new <li> and loads the next image in the sequence inside it.
@@ -84,8 +76,6 @@ $(document).ready(function () {
   function imageLoaded() {
     // Increments the value of the "loadedImages" variable
     loadedImages++;
-    // Updates the preloader percentage text
-    $("#spinner span").text(Math.floor(loadedImages / totalFrames * 100) + "%");
     // Checks if the currently loaded image is the last one in the sequence...
     if (loadedImages == totalFrames) {
       // ...if so, it makes the first image in the sequence to be visible by removing the "previous-image" class and applying the "current-image" on it
@@ -108,35 +98,10 @@ $(document).ready(function () {
     // Sets the "ready" variable to true, so the app now reacts to user interaction 
     ready = true;
     // Sets the endFrame to an initial value...
-    endFrame = -720;
-    // ...so when the animation renders, it will initially take 4 complete spins.
-    if(!demoMode) {
-      refresh();
-    } else {
-      fakePointerTimer = window.setInterval(moveFakePointer, 100);
-    }
+    endFrame = 0;
+    refresh();
   };
 
-  /*
-  * Moves the fake pointer, so that we can have some demo spinning until the user interferes with their pointer
-  */
-  function moveFakePointer () {
-    fakePointer.x += fakePointer.speed;
-    trackPointer();
-  };
-
-  /*
-  * Stops the fake pointer moving and lets the user control the spinning
-  */
-  function quitDemoMode() {
-    window.clearInterval(fakePointerTimer);
-    demoMode = false;
-  };
-
-  /*
-  We launch the application by...
-  Adding the preloader, and...
-  */
   // loading the firt image in the sequence.
   loadImage();
 
@@ -222,8 +187,6 @@ $(document).ready(function () {
   * Adds the jQuery "mousedown" event to the image slider wrapper.
   */
   $container.on("mousedown", function (event) {
-    quitDemoMode();
-
     // Prevents the original event handler behaciour
     event.preventDefault();
     // Stores the pointer x position as the starting position
@@ -248,10 +211,6 @@ $(document).ready(function () {
   * by providing more playing area for the mouse interaction.
   */
   $document.on("mousemove", function (event){
-    if(demoMode) {
-      return;
-    }
-
     // Prevents the original event handler behaciour
     event.preventDefault();
     // Starts tracking the pointer X position changes
@@ -262,8 +221,6 @@ $(document).ready(function () {
   *
   */
   $container.on("touchstart", function (event) {
-    quitDemoMode();
-
     // Prevents the original event handler behaciour
     event.preventDefault();
     // Stores the pointer x position as the starting position
@@ -298,12 +255,11 @@ $(document).ready(function () {
   */
   function trackPointer(event) {
     var userDragging = ready && dragging ? true : false;
-    var demoDragging = demoMode;
 
-    if(userDragging || demoDragging) {
+    if(userDragging) {
 
       // Stores the last x position of the pointer
-      pointerEndPosX = userDragging ? getPointerEvent(event).pageX : fakePointer.x;
+      pointerEndPosX = getPointerEvent(event).pageX;
 
       // Checks if there is enough time past between this and the last time period of tracking
       if(monitorStartTime < new Date().getTime() - monitorInt) {
@@ -317,7 +273,7 @@ $(document).ready(function () {
         monitorStartTime = new Date().getTime();
         // Stores the the pointer X position as the starting position (because we started a new tracking period)
 
-        pointerStartPosX = userDragging ? getPointerEvent(event).pageX : fakePointer.x;
+        pointerStartPosX = getPointerEvent(event).pageX;
       }
     } else {
       return;
