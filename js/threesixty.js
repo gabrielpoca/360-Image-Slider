@@ -21,7 +21,7 @@ $(document).ready(function () {
   // A setInterval instance used to call the rendering function
   ticker = 0,
   // Sets the speed of the image sliding animation
-  speedMultiplier = 10,
+  speedMultiplier = -10,
   // Stores the total amount of images we have in the sequence
   totalFrames = 180,
   // The current frame value of the image slider animation
@@ -38,52 +38,45 @@ $(document).ready(function () {
   $container = $('#threesixty'),
   $images = $('#threesixty_images');
 
-  /**
-  * Creates a new <li> and loads the next image in the sequence inside it.
-  * With jQuery we add the "load" event handler to the image, so when it's successfully loaded, we call the "imageLoaded" function.
-  */
-  function loadImage() {
-    // Creates a new <li>
-    var li = document.createElement("li");
-    // Generates the image file name using the incremented "loadedImages" variable
-    var imageName = "img/threesixty_" + (loadedImages + 1) + ".jpg";
-    /*
-    Creates a new <img> and sets its src attribute to point to the file name we generated.
-    It also hides the image by applying the "previous-image" CSS class to it.
-    The image then is added to the <li>.
-    */
-    var image = $('<img>').attr('src', imageName).addClass("previous-image").appendTo(li);
-    // We add the newly added image object (returned by jQuery) to the "frames" array.
-    frames.push(image);
-    // We add the <li> to the <ol>
-    $images.append(li);
-    /*
-    Adds the "load" event handler to the new image.
-    When the event triggers it calls the "imageLoaded" function.
-    */
-    $(image).load(function() {
-      imageLoaded();
+  $.fn.threesixty = function(image, frames) {
+    totalFrames = frames;
+    var tmpImage = new Image();
+    tmpImage.src = image;
+    $(tmpImage).load(function() {
+      var width = tmpImage.width;
+      var height = tmpImage.height;
+
+      for(var i = 0; i < totalFrames; i++) {
+        loadImage(image, height, width / totalFrames, width / totalFrames * i);
+      }
     });
-  };
+  }
 
   /**
-  * It handles the image "load" events.
-  * Each time this function is called it checks if all the images have been loaded or it has to load the next one.
-  * Every time a new image is succesfully loaded, we set the percentage value of the preloader to notify the user about the loading progress.
-  * If all the images are loaded, it hides the preloader using the jQuery "fadeOut" method, which on complete stops the preloader rendering
-  * and calls the "showThreesixty" method, that displays the image slider.
+  * Creates a new <li> and loads the next image in the.
   */
-  function imageLoaded() {
-    // Increments the value of the "loadedImages" variable
+  function loadImage(image, height, width, position) {
+    var li = $("<li>");
+
+    var styles = {
+      'background-image': 'url(' + image + ')',
+      'width': width + 'px',
+      'height': height + 'px',
+      'background-size': 'auto',
+      'background-repeat': 'no-repeat',
+      'background-position': '-' + new String(position) + 'px 0'
+    }
+
+    li.css(styles)
+    li.addClass("previous-image");
+
+    frames.push(li);
+    $images.prepend(li);
+
     loadedImages++;
-    // Checks if the currently loaded image is the last one in the sequence...
     if (loadedImages == totalFrames) {
-      // ...if so, it makes the first image in the sequence to be visible by removing the "previous-image" class and applying the "current-image" on it
       frames[0].removeClass("previous-image").addClass("current-image");
       showThreesixty();
-    } else {
-      // ...if not, Loads the next image in the sequence
-      loadImage();
     }
   };
 
@@ -101,9 +94,6 @@ $(document).ready(function () {
     endFrame = 0;
     refresh();
   };
-
-  // loading the firt image in the sequence.
-  loadImage();
 
   /**
   * Renders the image slider frame animations.
